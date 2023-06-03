@@ -1706,6 +1706,23 @@ void qjackctlMainForm::startJack (void)
 
 	// Go JACK, go...
 	m_pJack->start(sCommand, cmd_args);
+
+	if (bAlsa) {
+		if (!m_preset.sInDeviceAdd.isEmpty() && (m_preset.iAudio == QJACKCTL_DUPLEX || m_preset.iAudio == QJACKCTL_CAPTURE)) {
+			QString prog("alsa_in");
+			QStringList args;
+			args << "-j" << "alsa_in" << "-d" << formatQuoted(m_preset.sInDeviceAdd) << "-r" << QString::number(m_preset.iSampleRate) << "-i" << "-v";
+			bool result = QProcess::startDetached(prog, args);
+			appendStdoutBuffer(prog + " " + args.join(" ") + "Result: " + result);
+		}
+		if (!m_preset.sOutDeviceAdd.isEmpty() && (m_preset.iAudio == QJACKCTL_DUPLEX || m_preset.iAudio == QJACKCTL_PLAYBACK)) {
+			QString prog("alsa_out");
+			QStringList args;
+			args << "-j" << "alsa_out" << "-d" << formatQuoted(m_preset.sOutDeviceAdd) << "-r" << QString::number(m_preset.iSampleRate) << "-i" << "-v" << "-c" << "2";
+			bool result = QProcess::startDetached(prog, args);
+			appendStdoutBuffer(prog + " " + args.join(" ") + "Result: " + result);
+		}
+	}
 }
 
 

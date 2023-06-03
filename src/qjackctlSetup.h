@@ -78,6 +78,8 @@ struct qjackctlPreset
 	int     iTimeout;
 	QString sInDevice;
 	QString sOutDevice;
+	QString sInDeviceAdd;
+	QString sOutDeviceAdd;
 	int     iInChannels;
 	int     iOutChannels;
 	int     iInLatency;

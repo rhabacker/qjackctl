@@ -293,6 +293,12 @@ qjackctlSetupForm::qjackctlSetupForm ( QWidget *pParent )
 	QObject::connect(m_ui.OutDeviceComboBox,
 		SIGNAL(editTextChanged(const QString&)),
 		SLOT(settingsChanged()));
+	QObject::connect(m_ui.InDeviceAddComboBox,
+		SIGNAL(editTextChanged(const QString&)),
+		SLOT(settingsChanged()));
+	QObject::connect(m_ui.OutDeviceAddComboBox,
+		SIGNAL(editTextChanged(const QString&)),
+		SLOT(settingsChanged()));
 	QObject::connect(m_ui.InChannelsSpinBox,
 		SIGNAL(valueChanged(int)),
 		SLOT(settingsChanged()));
@@ -613,6 +619,11 @@ void qjackctlSetupForm::setup ( qjackctlSetup *pSetup )
 	m_ui.OutDeviceComboBox->setup(
 		m_ui.DriverComboBox, QJACKCTL_PLAYBACK, sDefName);
 
+	m_ui.InDeviceAddComboBox->setup(
+		m_ui.DriverComboBox, QJACKCTL_CAPTURE, sDefName);
+	m_ui.OutDeviceAddComboBox->setup(
+		m_ui.DriverComboBox, QJACKCTL_PLAYBACK, sDefName);
+
 	// Load Options...
 	m_ui.StartupScriptCheckBox->setChecked(m_pSetup->bStartupScript);
 	setComboBoxCurrentText(m_ui.StartupScriptShellComboBox,
@@ -841,6 +852,14 @@ void qjackctlSetupForm::setCurrentPreset ( const qjackctlPreset& preset )
 		preset.sOutDevice.isEmpty()
 			? sDefName
 			: preset.sOutDevice);
+	setComboBoxCurrentText(m_ui.InDeviceAddComboBox,
+		preset.sInDeviceAdd.isEmpty()
+			? sDefName
+			: preset.sInDeviceAdd);
+	setComboBoxCurrentText(m_ui.OutDeviceAddComboBox,
+		preset.sOutDeviceAdd.isEmpty()
+			? sDefName
+			: preset.sOutDeviceAdd);
 	m_ui.InChannelsSpinBox->setValue(preset.iInChannels);
 	m_ui.OutChannelsSpinBox->setValue(preset.iOutChannels);
 	m_ui.InLatencySpinBox->setValue(preset.iInLatency);
@@ -889,6 +908,8 @@ bool qjackctlSetupForm::getCurrentPreset ( qjackctlPreset& preset )
 	preset.iTimeout     = m_ui.TimeoutComboBox->currentText().toInt();
 	preset.sInDevice    = m_ui.InDeviceComboBox->currentText();
 	preset.sOutDevice   = m_ui.OutDeviceComboBox->currentText();
+	preset.sInDeviceAdd = m_ui.InDeviceAddComboBox->currentText();
+	preset.sOutDeviceAdd = m_ui.OutDeviceAddComboBox->currentText();
 	preset.iInChannels  = m_ui.InChannelsSpinBox->value();
 	preset.iOutChannels = m_ui.OutChannelsSpinBox->value();
 	preset.iInLatency   = m_ui.InLatencySpinBox->value();
@@ -1152,6 +1173,9 @@ void qjackctlSetupForm::changeDriverAudio ( const QString& sDriver, int iAudio )
 		|| ((bAlsa || bFirewire) && iAudio != QJACKCTL_PLAYBACK));
 	m_ui.OutLatencySpinBox->setEnabled((bOutEnabled && !bNet)
 		|| ((bAlsa || bFirewire) && iAudio != QJACKCTL_CAPTURE));
+
+	// alsa tab
+	m_ui.AlsaTab->setEnabled(bAlsa);
 
 	computeLatency();
 }

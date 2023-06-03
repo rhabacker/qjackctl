@@ -418,6 +418,8 @@ void qjackctlPreset::clear (void)
 	iTimeout     = 0;
 	sInDevice    .clear();
 	sOutDevice   .clear();
+	sInDeviceAdd .clear();
+	sOutDeviceAdd.clear();
 	iInChannels  = 0;
 	iOutChannels = 0;
 	iInLatency   = 0;
@@ -463,6 +465,8 @@ void qjackctlPreset::load ( QSettings& settings, const QString& sSuffix )
 	iTimeout      = settings.value("/Timeout",      iTimeout).toInt();
 	sInDevice     = settings.value("/InDevice",     sInDevice).toString();
 	sOutDevice    = settings.value("/OutDevice",    sOutDevice).toString();
+	sInDeviceAdd  = settings.value("/InDeviceAdd",  sInDeviceAdd).toString();
+	sOutDeviceAdd = settings.value("/OutDeviceAdd", sOutDeviceAdd).toString();
 	iInChannels   = settings.value("/InChannels",   iInChannels).toInt();
 	iOutChannels  = settings.value("/OutChannels",  iOutChannels).toInt();
 	iInLatency    = settings.value("/InLatency",    iInLatency).toInt();
@@ -509,6 +513,8 @@ void qjackctlPreset::save ( QSettings& settings, const QString& sSuffix )
 	settings.setValue("/Timeout",      iTimeout);
 	settings.setValue("/InDevice",     sInDevice);
 	settings.setValue("/OutDevice",    sOutDevice);
+	settings.setValue("/InDeviceAdd",  sInDeviceAdd);
+	settings.setValue("/OutDeviceAdd", sOutDeviceAdd);
 	settings.setValue("/InChannels",   iInChannels);
 	settings.setValue("/OutChannels",  iOutChannels);
 	settings.setValue("/InLatency",    iInLatency);
