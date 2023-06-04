@@ -319,6 +319,12 @@ qjackctlSetupForm::qjackctlSetupForm ( QWidget *pParent )
 	QObject::connect(m_ui.StartDelaySpinBox,
 		SIGNAL(valueChanged(int)),
 		SLOT(settingsChanged()));
+	QObject::connect(m_ui.InChannelsAddSpinBox,
+		SIGNAL(valueChanged(int)),
+		SLOT(settingsChanged()));
+	QObject::connect(m_ui.OutChannelsAddSpinBox,
+		SIGNAL(valueChanged(int)),
+		SLOT(settingsChanged()));
 	QObject::connect(m_ui.PortMaxComboBox,
 		SIGNAL(editTextChanged(const QString&)),
 		SLOT(settingsChanged()));
@@ -865,6 +871,8 @@ void qjackctlSetupForm::setCurrentPreset ( const qjackctlPreset& preset )
 	m_ui.InLatencySpinBox->setValue(preset.iInLatency);
 	m_ui.OutLatencySpinBox->setValue(preset.iOutLatency);
 	m_ui.StartDelaySpinBox->setValue(preset.iStartDelay);
+	m_ui.InChannelsAddSpinBox->setValue(preset.iInChannelsAdd);
+	m_ui.OutChannelsAddSpinBox->setValue(preset.iOutChannelsAdd);
 	m_ui.SyncCheckBox->setChecked(preset.bSync);
 	setComboBoxCurrentData(m_ui.SelfConnectModeComboBox,
 		QVariant::fromValue<uchar> (preset.ucSelfConnectMode));
@@ -915,6 +923,8 @@ bool qjackctlSetupForm::getCurrentPreset ( qjackctlPreset& preset )
 	preset.iInLatency   = m_ui.InLatencySpinBox->value();
 	preset.iOutLatency  = m_ui.OutLatencySpinBox->value();
 	preset.iStartDelay  = m_ui.StartDelaySpinBox->value();
+	preset.iInChannelsAdd  = m_ui.InChannelsAddSpinBox->value();
+	preset.iOutChannelsAdd = m_ui.OutChannelsAddSpinBox->value();
 	preset.bSync        = m_ui.SyncCheckBox->isChecked();
 	preset.bVerbose     = m_ui.VerboseCheckBox->isChecked();
 	preset.iPortMax     = m_ui.PortMaxComboBox->currentText().toInt();

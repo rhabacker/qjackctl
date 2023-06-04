@@ -425,6 +425,8 @@ void qjackctlPreset::clear (void)
 	iInLatency   = 0;
 	iOutLatency  = 0;
 	iStartDelay  = 2;
+	iInChannelsAdd  = 0;
+	iOutChannelsAdd = 0;
 	bSync        = false;
 	bVerbose     = false;
 	iPortMax     = 0;
@@ -472,6 +474,8 @@ void qjackctlPreset::load ( QSettings& settings, const QString& sSuffix )
 	iInLatency    = settings.value("/InLatency",    iInLatency).toInt();
 	iOutLatency   = settings.value("/OutLatency",   iOutLatency).toInt();
 	iStartDelay   = settings.value("/StartDelay",   iStartDelay).toInt();
+	iInChannelsAdd = settings.value("/InChannelsAdd",   iInChannelsAdd).toInt();
+	iOutChannelsAdd = settings.value("/OutChannelsAdd",  iOutChannelsAdd).toInt();
 	bSync         = settings.value("/Sync",         bSync).toBool();
 	bVerbose      = settings.value("/Verbose",      bVerbose).toBool();
 	iPortMax      = settings.value("/PortMax",      iPortMax).toInt();
@@ -520,6 +524,8 @@ void qjackctlPreset::save ( QSettings& settings, const QString& sSuffix )
 	settings.setValue("/InLatency",    iInLatency);
 	settings.setValue("/OutLatency",   iOutLatency);
 	settings.setValue("/StartDelay",   iStartDelay);
+	settings.setValue("/InChannelsAdd",   iInChannelsAdd);
+	settings.setValue("/OutChannelsAdd",  iOutChannelsAdd);
 	settings.setValue("/Sync",         bSync);
 	settings.setValue("/Verbose",      bVerbose);
 	settings.setValue("/PortMax",      iPortMax);

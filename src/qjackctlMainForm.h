@@ -172,6 +172,7 @@ protected slots:
 	void stdoutNotifySlot(int);
 	void sigtermNotifySlot(int);
 	void alsaNotifySlot(int);
+	void alsaProcessFinished(int);
 
 	void timerSlot();
 
@@ -320,6 +321,8 @@ private:
 	qjackctlSetup *m_pSetup;
 
 	QProcess *m_pJack;
+	QProcess *m_pAlsaIn;
+	QProcess *m_pAlsaOut;
 
 	int m_iServerState;
 

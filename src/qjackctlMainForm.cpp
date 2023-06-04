@@ -421,6 +421,8 @@ qjackctlMainForm::qjackctlMainForm (
 	m_iServerState = QJACKCTL_INACTIVE;
 
 	m_pJack         = nullptr;
+	m_pAlsaIn       = nullptr;
+	m_pAlsaOut      = nullptr;
 	m_pJackClient   = nullptr;
 	m_bJackDetach   = false;
 	m_bJackShutdown = false;
@@ -1708,19 +1710,55 @@ void qjackctlMainForm::startJack (void)
 	m_pJack->start(sCommand, cmd_args);
 
 	if (bAlsa) {
-		if (!m_preset.sInDeviceAdd.isEmpty() && (m_preset.iAudio == QJACKCTL_DUPLEX || m_preset.iAudio == QJACKCTL_CAPTURE)) {
+		if (!m_preset.sInDeviceAdd.isEmpty() && (m_preset.iAudio == QJACKCTL_DUPLEX || m_preset.iAudio == QJACKCTL_CAPTURE) && m_preset.iInChannelsAdd > 0) {
 			QString prog("alsa_in");
 			QStringList args;
-			args << "-j" << "alsa_in" << "-d" << formatQuoted(m_preset.sInDeviceAdd) << "-r" << QString::number(m_preset.iSampleRate) << "-i" << "-v";
-			bool result = QProcess::startDetached(prog, args);
-			appendStdoutBuffer(prog + " " + args.join(" ") + "Result: " + result);
+			args << "-j" << "alsa_in" << "-d" << formatQuoted(m_preset.sInDeviceAdd) << "-r" << QString::number(m_preset.iSampleRate) << "-i" << "-v" << "-c" << QString::number(m_preset.iInChannelsAdd);
+			m_pAlsaIn = new QProcess;
+			if (m_pSetup->bStdoutCapture) {
+#if defined(__WIN32__) || defined(_WIN32) || defined(WIN32)
+				// QProcess::ForwardedChannels doesn't seem to work in windows.
+				m_pAlsaIn->setProcessChannelMode(QProcess::MergedChannels);
+#else
+				m_pAlsaIn->setProcessChannelMode(QProcess::ForwardedChannels);
+#endif
+				QObject::connect(m_pAlsaIn,
+					SIGNAL(readyReadStandardOutput()),
+					SLOT(readStdout()));
+				QObject::connect(m_pAlsaIn,
+					SIGNAL(readyReadStandardError()),
+					SLOT(readStdout()));
+			}
+			bool result = m_pAlsaIn->startDetached(prog, args);
+			appendStdoutBuffer(prog + " " + args.join(" ") + "state: " + (result ? "running" : "failed") + "\n");
+			QObject::connect(m_pAlsaIn,
+				SIGNAL(finished(int,QProcess::ExitStatus)),
+				SLOT(alsaProcessFinished(int)));
 		}
-		if (!m_preset.sOutDeviceAdd.isEmpty() && (m_preset.iAudio == QJACKCTL_DUPLEX || m_preset.iAudio == QJACKCTL_PLAYBACK)) {
+		if (!m_preset.sOutDeviceAdd.isEmpty() && (m_preset.iAudio == QJACKCTL_DUPLEX || m_preset.iAudio == QJACKCTL_PLAYBACK) && m_preset.iOutChannelsAdd > 0) {
 			QString prog("alsa_out");
 			QStringList args;
-			args << "-j" << "alsa_out" << "-d" << formatQuoted(m_preset.sOutDeviceAdd) << "-r" << QString::number(m_preset.iSampleRate) << "-i" << "-v" << "-c" << "2";
-			bool result = QProcess::startDetached(prog, args);
-			appendStdoutBuffer(prog + " " + args.join(" ") + "Result: " + result);
+			args << "-j" << "alsa_out" << "-d" << formatQuoted(m_preset.sOutDeviceAdd) << "-r" << QString::number(m_preset.iSampleRate) << "-i" << "-v" << "-c" << QString::number(m_preset.iOutChannelsAdd);
+			m_pAlsaOut = new QProcess;
+			if (m_pSetup->bStdoutCapture) {
+#if defined(__WIN32__) || defined(_WIN32) || defined(WIN32)
+				// QProcess::ForwardedChannels doesn't seem to work in windows.
+				m_pAlsaOut->setProcessChannelMode(QProcess::MergedChannels);
+#else
+				m_pAlsaOut->setProcessChannelMode(QProcess::ForwardedChannels);
+#endif
+				QObject::connect(m_pAlsaOut,
+					SIGNAL(readyReadStandardOutput()),
+					SLOT(readStdout()));
+				QObject::connect(m_pAlsaOut,
+					SIGNAL(readyReadStandardError()),
+					SLOT(readStdout()));
+			}
+			bool result = m_pAlsaOut->startDetached(prog, args);
+			appendStdoutBuffer(prog + " " + args.join(" ") + "state: " + (result ? "running" : "failed") + "\n");
+			QObject::connect(m_pAlsaOut,
+				SIGNAL(finished(int,QProcess::ExitStatus)),
+				SLOT(alsaProcessFinished(int)));
 		}
 	}
 }
@@ -2918,6 +2956,12 @@ void qjackctlMainForm::alsaNotifySlot ( int /*fd*/ )
 	m_iAlsaDirty++;
 }
 
+void qjackctlMainForm::alsaProcessFinished(int)
+{
+	QProcess *alsaProcess = dynamic_cast<QProcess*>(sender());
+	appendStdoutBuffer("finished" + alsaProcess->program() + " " + alsaProcess->arguments().join(" "));
+	delete alsaProcess;
+}
 
 // Timer callback funtion.
 void qjackctlMainForm::timerSlot (void)

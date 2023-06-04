@@ -85,6 +85,8 @@ struct qjackctlPreset
 	int     iInLatency;
 	int     iOutLatency;
 	int     iStartDelay;
+	int     iInChannelsAdd;
+	int     iOutChannelsAdd;
 	bool    bSync;
 	bool    bVerbose;
 	int     iPortMax;
